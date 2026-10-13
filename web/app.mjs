@@ -1,8 +1,23 @@
-import {INKS,normalizeCatalog,validateCatalog,emptyTops,cleanTops,addCard,moveCard,encodeShare,decodeShare} from './core.mjs';
+import {INKS,validateCatalog,emptyTops,cleanTops,addCard,moveCard,encodeShare,decodeShare} from './core.mjs';
 import {exportPng} from './export.mjs';
 const $=id=>document.getElementById(id);
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const inkInfo=id=>INKS.find(i=>i.id===id);
+function applyTheme(theme){
+  const dark=theme!=='light';
+  document.documentElement.dataset.theme=dark?'dark':'light';
+  $('theme-symbol').textContent=dark?'☀':'☾';
+  $('theme-label').textContent=dark?'Mode clair':'Mode sombre';
+  $('theme-toggle').setAttribute('aria-label',dark?'Activer le mode clair':'Activer le mode sombre');
+  document.querySelector('meta[name="theme-color"]').content=dark?'#101720':'#f6f5f0';
+}
+let savedTheme='dark';try{savedTheme=localStorage.getItem('lorcana-top5-theme')||'dark';}catch{}
+applyTheme(savedTheme);
+$('theme-toggle').onclick=()=>{
+  const next=document.documentElement.dataset.theme==='dark'?'light':'dark';
+  applyTheme(next);try{localStorage.setItem('lorcana-top5-theme',next);}catch{}
+};
+
 let catalog={cards:[],sets:[]},set='14',active='Amber',tops=emptyTops(),title='',shared=false,summary=false,toastTimer,db;
 let store={v:1,sets:{}};
 try { const saved=JSON.parse(localStorage.getItem('lorcana-top5-v1'));if(saved?.v===1&&saved.sets&&typeof saved.sets==='object')store=saved; } catch {}
@@ -25,7 +40,6 @@ async function openDb(){return new Promise((resolve,reject)=>{
   const req=indexedDB.open('lorcana-top5',1);req.onupgradeneeded=()=>req.result.createObjectStore('catalog');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
 });}
 async function readImported(){try{db=await openDb();return await new Promise((resolve,reject)=>{const r=db.transaction('catalog').objectStore('catalog').get('fr');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}catch{return null;}}
-async function saveImported(value){if(!db)db=await openDb();await new Promise((resolve,reject)=>{const t=db.transaction('catalog','readwrite');t.objectStore('catalog').put(value,'fr');t.oncomplete=resolve;t.onerror=()=>reject(t.error);});}
 function image(card,cls=''){
   const img=el('img',undefined,cls);img.src=card.thumbnail||card.image;img.alt=[card.name,card.subtitle].filter(Boolean).join(' — ');img.loading='lazy';img.decoding='async';
   img.onerror=()=>{if(img.src!==card.image){img.src=card.image;return;}img.parentElement?.classList.add('image-unavailable');img.alt='Image indisponible';};return img;
@@ -51,7 +65,7 @@ function renderGrid(){
   $('collection-title').textContent=`Les cartes ${inkInfo(active).name}`;
   $('card-count').textContent=`${cards.length} carte${cards.length>1?'s':''}${query?' trouvée'+(cards.length>1?'s':''):''} · Les bicolores figurent dans leurs deux encres`;
   $('grid').replaceChildren();
-  if(!cards.length){const box=el('div',undefined,'empty');box.append(el('span','✦','star'),el('strong',query?'Aucune carte trouvée':`La collection vous attend`),el('p',query?'Essayez un autre nom ou effacez la recherche.':`Aucune carte du set ${set} disponible. Choisissez une autre extension ou importez le catalogue officiel français en bas de page.`));$('grid').append(box);return;}
+  if(!cards.length){const box=el('div',undefined,'empty');box.append(el('span','✦','star'),el('strong',query?'Aucune carte trouvée':`La collection vous attend`),el('p',query?'Essayez un autre nom ou effacez la recherche.':`Aucune carte du set ${set} disponible. Choisissez une autre extension ou réessayez après la mise à jour du catalogue.`));$('grid').append(box);return;}
   $('grid').append(...cards.map(card=>{
     const rank=tops[active].indexOf(card.id),selected=rank>=0;
     const b=el('button',undefined,'card'+(selected?' selected':''));b.setAttribute('aria-pressed',String(selected));b.setAttribute('aria-label',`${selected?'Retirer':'Ajouter'} ${card.name} ${card.subtitle} ${selected?'du':'au'} top ${inkInfo(active).name}`);
@@ -104,7 +118,7 @@ $('share-link').onclick=async()=>{const url=shareUrl();try{await navigator.clipb
 $('copy-ranking').onclick=()=>{
   const copy=cleanTops(tops,set,catalog.cards);
   const removed=INKS.some(i=>copy[i.id].length!==tops[i.id].length);
-  if(removed){toast('Importez d’abord le catalogue de ce set pour créer une copie complète.');return;}
+  if(removed){toast('Le catalogue de ce set est indisponible. Réessayez après sa mise à jour.');return;}
   shared=false;tops=copy;history.replaceState(null,'',location.pathname+location.search);persist();summary=false;render();toast('Votre version est prête.');
 };
 $('print').onclick=()=>window.print();
@@ -113,19 +127,6 @@ $('export-png').onclick=async()=>{
   try{const missing=await exportPng({set,title,tops,catalog});toast(missing?`Image exportée. ${missing} visuel(s) indisponible(s) : les noms et rangs sont conservés.`:'Votre image PNG est téléchargée.');}
   catch{toast('L’image n’a pas pu être exportée. Utilisez Imprimer / PDF ou le lien de partage.');}
   finally{b.disabled=false;b.textContent='Exporter en image PNG ↓';}
-};
-$('import-file').onchange=async event=>{
-  const file=event.target.files[0];if(!file)return;
-  try{
-    if(file.size>40*1024*1024)throw new Error('Fichier trop volumineux (40 Mo maximum).');
-    const imported=normalizeCatalog(JSON.parse(await file.text()));
-    // Merge cached sets so importing a newer season never deletes existing references.
-    const cards=new Map(catalog.cards.map(c=>[c.id,c]));imported.cards.forEach(c=>cards.set(c.id,c));
-    const merged=validateCatalog({...imported,cards:[...cards.values()],sets:[...catalog.sets,...imported.sets]});
-    let saved=true;try{await saveImported(merged);}catch{saved=false;}
-    catalog=merged;if(!shared)loadSet();render();notice(saved?'Catalogue importé et conservé sur cet appareil.':'Catalogue chargé pour cette session. Le navigateur ne permet pas sa sauvegarde.');toast(`${imported.cards.length} cartes françaises importées.`);
-  }catch(e){toast(e.message||'Le catalogue ne peut pas être importé.');}
-  event.target.value='';
 };
 function applyShare(){
   if(!location.hash.startsWith('#top='))return false;
@@ -139,8 +140,8 @@ async function init(){
     const response=await fetch('./data/catalog.json',{cache:'no-cache'});if(!response.ok)throw new Error();
     const official=validateCatalog(await response.json());
     if(imported){const cached=validateCatalog(imported);const merged=new Map(cached.cards.map(c=>[c.id,c]));official.cards.forEach(c=>merged.set(c.id,c));catalog=validateCatalog({...official,updatedAt:official.updatedAt||cached.updatedAt,cards:[...merged.values()],sets:[...official.sets,...cached.sets]});}else catalog=official;
-  }catch{try{if(imported)catalog=validateCatalog(imported);}catch{}notice('Le catalogue n’a pas pu être chargé. Vous pouvez importer le fichier JSON officiel en bas de page.');}
-  if(!catalog.cards.length)notice('Le catalogue français attend son premier import. Téléchargez le JSON officiel et importez-le en bas de page. Vos classements seront ensuite sauvegardés automatiquement.');
+  }catch{try{if(imported)catalog=validateCatalog(imported);}catch{}notice('Le catalogue n’a pas pu être chargé. Rechargez la page dans quelques instants.');}
+  if(!catalog.cards.length)notice('Le catalogue français est momentanément indisponible. Réessayez dans quelques instants.');
   if(!applyShare())loadSet();render();
 }
 init();

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="dark">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#131d29">
@@ -13,7 +13,7 @@
   <header class="masthead">
     <a class="brand" href="./" aria-label="Lorcana Top 5, accueil"><span class="brand-icon" aria-hidden="true">✦</span><span>LORCANA <small>LE CARNET DES ENCRES</small></span></a>
     <span class="header-label">VOS CARTES. VOTRE CLASSEMENT.</span>
-    <button id="summary-toggle" class="quiet">Voir mes six tops <span aria-hidden="true">↗</span></button>
+    <div class="header-actions"><button id="theme-toggle" class="quiet theme-toggle" aria-label="Activer le mode clair"><span id="theme-symbol" aria-hidden="true">☀</span><span id="theme-label" class="theme-label">Mode clair</span></button><button id="summary-toggle" class="quiet">Voir mes six tops <span aria-hidden="true">↗</span></button></div>
   </header>
   <main id="main">
     <section class="intro">
@@ -38,7 +38,7 @@
       <p class="share-help">Le lien contient votre sélection actuelle. Après modification, copiez un nouveau lien.</p>
       <div id="summary-grid"></div>
     </section>
-    <footer><div><span class="footer-brand">✦ LORCANA TOP 5</span><p>Un carnet de favoris, une encre à la fois.</p><small>Projet de fans non officiel. Disney Lorcana © Disney / Ravensburger.</small></div><div class="footer-links"><a href="https://api.lorcana.ravensburger.com/v3/catalog/fr" target="_blank" rel="noopener">Catalogue officiel FR ↗</a><a href="https://github.com/Gon3s/lorcana-top5" target="_blank" rel="noopener">Code source ↗</a><label class="import-label">Importer un catalogue JSON<input id="import-file" type="file" accept=".json,application/json"></label></div></footer>
+    <footer><div><span class="footer-brand">✦ LORCANA TOP 5</span><p>Un carnet de favoris, une encre à la fois.</p><small>Projet de fans non officiel. Disney Lorcana © Disney / Ravensburger.</small></div><div class="footer-links"><a href="https://api.lorcana.ravensburger.com/v3/catalog/fr" target="_blank" rel="noopener">Catalogue officiel FR ↗</a><a href="https://github.com/Gon3s/lorcana-top5" target="_blank" rel="noopener">Code source ↗</a></div></footer>
   </main>
   <div id="toast" role="status" aria-live="polite" hidden></div>
 </body>

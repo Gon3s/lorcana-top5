@@ -10,7 +10,7 @@ Mini-site français statique pour classer cinq cartes par encre et par extension
 - Page récapitulative et lien de partage autonome : titre, set et identifiants sont encodés dans le fragment URL. Aucun compte ni serveur nécessaire.
 - Les liens ouvrent une vue de consultation. « Créer ma version » enregistre une copie locale.
 - Export PNG des six tops et impression / PDF. Le workflow copie les miniatures officielles sur le site pour éviter les restrictions CORS pendant l’export. La grille conserve les URLs officielles. Si une image n’a pas pu être copiée et que le serveur distant refuse CORS, le PNG conserve le nom et le rang et signale le visuel manquant.
-- Import manuel du JSON officiel, conservé dans IndexedDB. Un catalogue importé localement reste sur cet appareil ; les destinataires ont besoin d’un catalogue contenant le même set.
+- Mode sombre par défaut, bouton de passage au mode clair et préférence mémorisée sur cet appareil. Le catalogue est fourni automatiquement ; aucun formulaire d’upload n’est exposé.
 
 ## Catalogue officiel
 
@@ -35,7 +35,7 @@ node scripts/build.mjs --catalog .cache/catalog-fr.json --require-catalog
 
 Pour fournir un catalogue durable aux workflows, ajouter le JSON officiel à `data/catalog-source.json` dans le dépôt (prioritaire sur l’API). Un nouveau set présent dans ce fichier ou dans une récupération API sera automatiquement proposé dans le sélecteur, sans changement de code.
 
-`web/data/catalog.json` est un catalogue normalisé vide au départ : aucune fausse carte n’est affichée. Sans catalogue réel, le site local offre l’import manuel, mais le workflow de publication échoue volontairement pour éviter de publier une collection vide. Les tests utilisent uniquement des fixtures synthétiques, exclues de `dist`.
+`web/data/catalog.json` est un catalogue normalisé vide au départ : aucune fausse carte n’est affichée. Sans catalogue réel, le site local indique que la collection est indisponible et le workflow de publication échoue volontairement pour éviter de publier une collection vide. Les tests utilisent uniquement des fixtures synthétiques, exclues de `dist`.
 
 ## Développement et vérification
 
@@ -43,8 +43,9 @@ Aucune dépendance npm. Node.js 24 et Python 3.12 suffisent.
 
 ```bash
 npm test
-npm run build
-npm start
+npm run catalog
+node scripts/build.mjs --catalog .cache/catalog-fr.json
+python -m http.server 8080 --directory dist
 ```
 
 Ouvrir http://localhost:8080. Pour servir le résultat de build : `python -m http.server 8080 --directory dist`.
