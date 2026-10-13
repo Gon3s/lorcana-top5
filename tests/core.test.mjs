@@ -63,6 +63,7 @@ test('preserves category types, canonical rarities and future expansion names',(
   const catalog=normalizeCatalog({sets:[{id:15,name:'Une nouvelle aventure'}],cards:{characters:[card(1)],actions:[{...card(2,2,15),rarity:'SUPER_RARE'}],items:[card(3,3)],locations:[card(4,4)]}});
   assert.deepEqual(catalog.cards.map(c=>c.type),['Character','Action','Item','Location']);
   assert.equal(catalog.cards[1].rarity,'SuperRare');assert.equal(catalog.sets[0].name,'Une nouvelle aventure');
+  assert.equal(normalizeCatalog(raw({...card(9),rarity:'SUPER'})).cards[0].rarity,'SuperRare');
   assert.equal(setName('14'),'Hyperia City');assert.equal(setName('16'),'Extension 16');
   assert.equal(validateCatalog({...catalog,sets:[{id:'14',name:'Set 14'},{id:'15',name:'Une nouvelle aventure'}]}).sets[1].name,'Hyperia City');
 });

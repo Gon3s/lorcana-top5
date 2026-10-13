@@ -18,7 +18,7 @@ export const TYPES = {Character:'Personnage',Action:'Action',Item:'Objet',Locati
 export const RARITIES = {Common:'Commune',Uncommon:'Peu commune',Rare:'Rare',SuperRare:'Super rare',Legendary:'Légendaire'};
 const key = value=>String(value??'').normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().replace(/[\s_-]/g,'');
 const canonicalType = value=>Object.keys(TYPES).find(t=>key(t)===key(value)||key(t)+'s'===key(value)||key(TYPES[t])===key(value))||'';
-const canonicalRarity = value=>Object.keys(RARITIES).find(r=>key(r)===key(value)||key(RARITIES[r])===key(value))||String(value??'');
+const canonicalRarity = value=>key(value)==='super'?'SuperRare':Object.keys(RARITIES).find(r=>key(r)===key(value)||key(RARITIES[r])===key(value))||String(value??'');
 export function setName(id,sets=[]) {
   const name=sets.find(s=>String(s.id)===String(id))?.name;
   return name&&!/^Set \d+$/.test(name)?String(name):SET_NAMES[id]||`Extension ${id}`;
