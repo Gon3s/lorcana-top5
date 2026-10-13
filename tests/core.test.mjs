@@ -9,6 +9,10 @@ test('imports French identifier, standard art and multiple sets',()=>{
   assert.equal(catalog.cards[0].set,'14');assert.equal(catalog.cards[0].number,2);
   assert.equal(catalog.cards[0].image,'https://example.test/10.jpg');assert.deepEqual(catalog.sets.map(s=>s.id),['15','14']);
 });
+test('accepts the uppercase ink values used in the live Ravensburger catalogue',()=>{
+  const catalog=normalizeCatalog(raw(card(3292,27,14,['AMBER']),card(3293,28,14,['AMBER','AMETHYST'])));
+  assert.deepEqual(catalog.cards[0].inks,['Amber']);assert.deepEqual(catalog.cards[1].inks,['Amber','Amethyst']);
+});
 test('excludes foreign cards, alternate numbering and promo identifiers',()=>{
   const catalog=normalizeCatalog(raw(card(1),card(2,205),{...card(3),card_identifier:'1/204 EN 14'},{...card(4),card_identifier:'1/P1 FR 14'},{...card(5),rarity:'Enchanted'}));
   assert.equal(catalog.cards.length,1);assert.equal(catalog.skipped,4);

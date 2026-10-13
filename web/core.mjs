@@ -8,6 +8,7 @@ export const INKS = [
 ];
 export const SOURCE = 'https://api.lorcana.ravensburger.com/v3/catalog/fr';
 const knownInks = new Set(INKS.map(x=>x.id));
+const canonicalInk = new Map(INKS.map(x=>[x.id.toUpperCase(),x.id]));
 export function safeImage(value) {
   try { const u=new URL(value); return u.protocol==='https:' ? u.href : ''; } catch { return ''; }
 }
@@ -22,7 +23,7 @@ export function normalizeCatalog(raw) {
     // Promotions and alternate numbered illustrations are outside the V1.
     if (!match || +match[1]>+match[2] || /enchanted|enchant|iconic|epic/i.test(String(c.rarity))) {skipped++;continue;}
     const id=String(c.culture_invariant_id??'');
-    const inks=[...new Set((c.magic_ink_colors??[]).filter(x=>knownInks.has(x)))];
+    const inks=[...new Set((c.magic_ink_colors??[]).map(x=>canonicalInk.get(String(x).toUpperCase())).filter(Boolean))];
     const variant=(c.variants??[]).find(v=>v.variant_id==='Regular');
     const image=safeImage(variant?.detail_image_url);
     if (!id || !c.name || !inks.length || !image) throw new Error(`Carte ${id||identifier} : nom, encres ou image Regular manquants.`);
