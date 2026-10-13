@@ -43,6 +43,12 @@ def main():
     temporary.write_text(json.dumps(data, ensure_ascii=False), encoding='utf-8')
     temporary.replace(args.out)
     print(f'Catalogue downloaded: {args.out}')
+    cards = data['cards'] if isinstance(data['cards'], list) else [c for category in data['cards'].values() for c in category]
+    colors = sorted({str(ink) for c in cards for ink in c.get('magic_ink_colors', [])})
+    print(f'Official ink values: {colors}')
+    for c in cards:
+        if str(c.get('culture_invariant_id')) == '3292':
+            print('Card 3292 import diagnostic:', json.dumps({k: c.get(k) for k in ('culture_invariant_id', 'card_identifier', 'name', 'magic_ink_colors', 'variants')}, ensure_ascii=False))
 
 if __name__ == '__main__':
     main()
