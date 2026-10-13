@@ -1,0 +1,90 @@
+name: Build and deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Refresh the catalogue every morning, without committing generated data.
+    - cron: '20 5 * * *'
+
+concurrency:
+  group: lorcana-pages-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm test
+      - name: Restore last usable catalogue
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/catalog-fr.json
+          key: lorcana-fr-${{ github.run_id }}
+          restore-keys: lorcana-fr-
+      - name: Refresh official French catalogue
+        id: refresh
+        continue-on-error: true
+        env:
+          LORCANA_BEARER_TOKEN: ${{ secrets.LORCANA_BEARER_TOKEN }}
+          LORCANA_BASIC_AUTH: ${{ secrets.LORCANA_BASIC_AUTH }}
+        run: python scripts/fetch_catalog.py
+      - name: Normalize and build
+        run: |
+          if [ -f data/catalog-source.json ]; then
+            node scripts/build.mjs --catalog data/catalog-source.json --require-catalog
+          elif [ -f .cache/catalog-fr.json ]; then
+            node scripts/build.mjs --catalog .cache/catalog-fr.json --require-catalog
+          else
+            node scripts/build.mjs --require-catalog
+          fi
+      - name: Report catalogue fallback
+        if: steps.refresh.outcome == 'failure'
+        run: echo '::warning::Le catalogue officiel n’a pas pu être actualisé. Le dernier catalogue disponible est utilisé.'
+      - name: Cache validated official catalogue
+        if: steps.refresh.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/catalog-fr.json
+          key: lorcana-fr-${{ github.run_id }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-preview
+          path: dist
+          if-no-files-found: error
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site-preview
+          path: dist
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

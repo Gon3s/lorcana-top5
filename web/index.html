@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#131d29">
+  <meta name="description" content="Composez et partagez votre top 5 Disney Lorcana pour chacune des six encres.">
+  <title>Lorcana · Mes Top 5</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Aller aux cartes</a>
+  <header class="masthead">
+    <a class="brand" href="./" aria-label="Lorcana Top 5, accueil"><span class="brand-icon" aria-hidden="true">✦</span><span>LORCANA <small>LE CARNET DES ENCRES</small></span></a>
+    <span class="header-label">VOS CARTES. VOTRE CLASSEMENT.</span>
+    <button id="summary-toggle" class="quiet">Voir mes six tops <span aria-hidden="true">↗</span></button>
+  </header>
+  <main id="main">
+    <section class="intro">
+      <div><p class="eyebrow">SIX ENCRES · CINQ FAVORITES</p><h1>Les cartes qui font<br>la différence<span>.</span></h1><p class="intro-copy">Choisissez vos cinq favorites pour chaque encre.<br>Classez-les, puis partagez votre sélection.</p></div>
+      <div class="season"><label for="set-select">VOTRE EXTENSION</label><select id="set-select" aria-label="Extension"></select><span id="catalog-meta">Chargement du catalogue…</span></div>
+    </section>
+    <div id="catalog-notice" class="notice" hidden></div>
+    <div id="shared-notice" class="notice share-notice" hidden><span>Vous consultez un classement partagé.</span><button id="copy-ranking" class="quiet">Créer ma version</button></div>
+    <section class="workspace-head"><div class="ink-tabs" id="ink-tabs" aria-label="Couleur d’encre"></div><span id="progress" class="progress"></span></section>
+    <section id="editor" class="editor">
+      <div class="collection">
+        <div class="collection-head"><div><h2 id="collection-title">Votre collection</h2><p id="card-count"></p></div><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Rechercher une carte…" aria-label="Rechercher une carte"></label></div>
+        <div id="grid" class="card-grid" aria-live="polite"></div>
+      </div>
+      <aside class="ranking"><div class="ranking-heading"><span class="eyebrow">VOTRE SÉLECTION</span><span id="rank-count"></span></div><h2 id="ranking-title">Top 5 Ambre</h2><p class="ranking-help">Ajoutez une carte, puis ajustez son rang avec les flèches.</p><ol id="ranking-list"></ol><div class="ranking-bottom"><span id="save-status">Sauvegarde automatique sur cet appareil</span><button id="view-summary" class="primary">Voir mes six tops <span aria-hidden="true">→</span></button></div></aside>
+    </section>
+    <section id="summary" hidden>
+      <div class="summary-heading"><div><p class="eyebrow">LE RÉCAPITULATIF</p><h2>Mes six tops</h2></div><button id="back-editor" class="quiet">← Modifier mes tops</button></div>
+      <label class="title-label" for="ranking-name">Titre de votre sélection<input id="ranking-name" maxlength="80" placeholder="Mes favoris Lorcana"></label>
+      <div class="share-actions"><button id="share-link" class="primary">Copier le lien de partage ↗</button><button id="export-png" class="quiet">Exporter en image PNG ↓</button><button id="print" class="quiet">Imprimer / PDF</button></div>
+      <div id="share-fallback" hidden><label for="share-url">Lien de partage</label><input id="share-url" readonly><p>Copiez ce lien pour partager vos classements.</p></div>
+      <p class="share-help">Le lien contient votre sélection actuelle. Après modification, copiez un nouveau lien.</p>
+      <div id="summary-grid"></div>
+    </section>
+    <footer><div><span class="footer-brand">✦ LORCANA TOP 5</span><p>Un carnet de favoris, une encre à la fois.</p><small>Projet de fans non officiel. Disney Lorcana © Disney / Ravensburger.</small></div><div class="footer-links"><a href="https://api.lorcana.ravensburger.com/v3/catalog/fr" target="_blank" rel="noopener">Catalogue officiel FR ↗</a><a href="https://github.com/Gon3s/lorcana-top5" target="_blank" rel="noopener">Code source ↗</a><label class="import-label">Importer un catalogue JSON<input id="import-file" type="file" accept=".json,application/json"></label></div></footer>
+  </main>
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

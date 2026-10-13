@@ -1,0 +1,12 @@
+{
+  "name": "lorcana-top5",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "catalog": "python scripts/fetch_catalog.py",
+    "build": "node scripts/build.mjs",
+    "start": "python -m http.server 8080 --directory web"
+  }
+}
