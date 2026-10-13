@@ -14,7 +14,8 @@ export async function exportPng({set,title,tops,catalog}){
   const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Canvas unavailable');
   const ids=[...new Set(INKS.flatMap(i=>tops[i.id]))];
   const byId=new Map(catalog.cards.map(c=>[c.id,c]));
-  const images=new Map(await Promise.all(ids.map(async id=>[id,await loadImage(byId.get(id)?.image)])));
+  const images=new Map(await Promise.all(ids.map(async id=>[id,
+    await loadImage(new URL(`./export-images/${id}.jpg`,import.meta.url).href) || await loadImage(byId.get(id)?.image)])));
   ctx.fillStyle='#f6f5f0';ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.fillStyle='#17222e';ctx.fillRect(0,0,1800,190);
   ctx.fillStyle='#dfbb74';ctx.font='bold 22px sans-serif';ctx.fillText('LORCANA · MES TOP 5',60,55);

@@ -9,7 +9,7 @@ Mini-site français statique pour classer cinq cartes par encre et par extension
 - Sauvegarde des classements par set dans le navigateur.
 - Page récapitulative et lien de partage autonome : titre, set et identifiants sont encodés dans le fragment URL. Aucun compte ni serveur nécessaire.
 - Les liens ouvrent une vue de consultation. « Créer ma version » enregistre une copie locale.
-- Export PNG des six tops et impression / PDF. Si une image distante est inaccessible ou refuse CORS, le PNG conserve le nom et le rang et indique le visuel manquant. Le navigateur signale combien de visuels manquent.
+- Export PNG des six tops et impression / PDF. Le workflow copie les miniatures officielles sur le site pour éviter les restrictions CORS pendant l’export. La grille conserve les URLs officielles. Si une image n’a pas pu être copiée et que le serveur distant refuse CORS, le PNG conserve le nom et le rang et signale le visuel manquant.
 - Import manuel du JSON officiel, conservé dans IndexedDB. Un catalogue importé localement reste sur cet appareil ; les destinataires ont besoin d’un catalogue contenant le même set.
 
 ## Catalogue officiel
@@ -21,6 +21,7 @@ L’import reprend les conventions utilisées par `Gon3s/lorcana-coconut-proxies
 ```bash
 python scripts/fetch_catalog.py
 node scripts/build.mjs --catalog .cache/catalog-fr.json --require-catalog
+python scripts/mirror_images.py
 ```
 
 L’API peut refuser les requêtes sans authentification. Le téléchargement accepte un jeton utilisateur via `LORCANA_BEARER_TOKEN`, ou une valeur d’authentification Basic autorisée via `LORCANA_BASIC_AUTH`, utilisée côté workflow pour demander un jeton à `https://sso.ravensburger.de/token`. Aucune clé d’application n’est embarquée dans le code ou le site. N’ajoutez jamais ces valeurs dans les fichiers versionnés.
@@ -47,6 +48,8 @@ npm start
 ```
 
 Ouvrir http://localhost:8080. Pour servir le résultat de build : `python -m http.server 8080 --directory dist`.
+
+Pour vérifier les exports avec les images locales, exécuter `python scripts/mirror_images.py` après le build, puis servir `dist`. Les miniatures sont réutilisées depuis `.cache/export-images` lors des mises à jour.
 
 ## GitHub Pages
 

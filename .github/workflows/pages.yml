@@ -53,6 +53,14 @@ jobs:
       - name: Report catalogue fallback
         if: steps.refresh.outcome == 'failure'
         run: echo '::warning::Le catalogue officiel n’a pas pu être actualisé. Le dernier catalogue disponible est utilisé.'
+      - name: Cache images for PNG exports
+        uses: actions/cache@v4
+        with:
+          path: .cache/export-images
+          key: lorcana-images-v1-${{ hashFiles('.cache/catalog-fr.json', 'data/catalog-source.json', 'web/data/catalog.json') }}
+          restore-keys: lorcana-images-v1-
+      - name: Prepare images for PNG exports
+        run: python scripts/mirror_images.py
       - name: Cache validated official catalogue
         if: steps.refresh.outcome == 'success'
         uses: actions/cache/save@v4
