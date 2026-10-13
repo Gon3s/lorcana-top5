@@ -17,5 +17,6 @@ test('build imports official cards, produces relative assets and excludes fixtur
   assert.equal(result.status,0,result.stderr);const data=JSON.parse(await readFile(resolve(dir,'dist/data/catalog.json'),'utf8'));
   assert.equal(data.cards.length,1);assert.deepEqual(data.cards[0].inks,['Amber','Amethyst']);assert.equal(data.cards[0].set,'14');
   const files=await readdir(resolve(dir,'dist'));assert.ok(files.includes('.nojekyll'));assert.ok(!files.includes('tests'));assert.ok(!files.includes('scripts'));
-  const html=await readFile(resolve(dir,'dist/index.html'),'utf8');assert.ok(html.includes('src="./app.mjs"'));assert.ok(html.includes('href="./style.css"'));
+  const html=await readFile(resolve(dir,'dist/index.html'),'utf8');assert.match(html,/src="\.\/app\.mjs\?v=[a-f0-9]{12}"/);assert.match(html,/href="\.\/style\.css\?v=[a-f0-9]{12}"/);
+  const app=await readFile(resolve(dir,'dist/app.mjs'),'utf8');assert.match(app,/from '\.\/export\.mjs\?v=[a-f0-9]{12}'/);
 }));
