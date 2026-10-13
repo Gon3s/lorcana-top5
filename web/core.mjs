@@ -7,6 +7,22 @@ export const INKS = [
   {id:'Steel', name:'Acier', color:'#b5c3d3'}
 ];
 export const SOURCE = 'https://api.lorcana.ravensburger.com/v3/catalog/fr';
+// French expansion names from the official Disney Lorcana product pages.
+export const SET_NAMES = {
+  1:'Premier Chapitre',2:'L’Ascension des Floodborn',3:'Les Terres d’Encres',
+  4:'Le Retour d’Ursula',5:'Ciel Scintillant',6:'La Mer Azurite',7:'L’Île d’Archazia',
+  8:'Le Règne de Jafar',9:'Fabuleux',10:'Lueurs dans les Profondeurs',11:'Givresort',
+  12:'Contrées Inconnues',13:'Invasion Épineuse !',14:'Hyperia City'
+};
+export const TYPES = {Character:'Personnage',Action:'Action',Item:'Objet',Location:'Lieu'};
+export const RARITIES = {Common:'Commune',Uncommon:'Peu commune',Rare:'Rare',SuperRare:'Super rare',Legendary:'Légendaire'};
+const key = value=>String(value??'').normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().replace(/[\s_-]/g,'');
+const canonicalType = value=>Object.keys(TYPES).find(t=>key(t)===key(value)||key(t)+'s'===key(value)||key(TYPES[t])===key(value))||'';
+const canonicalRarity = value=>Object.keys(RARITIES).find(r=>key(r)===key(value)||key(RARITIES[r])===key(value))||String(value??'');
+export function setName(id,sets=[]) {
+  const name=sets.find(s=>String(s.id)===String(id))?.name;
+  return name&&!/^Set \d+$/.test(name)?String(name):SET_NAMES[id]||`Extension ${id}`;
+}
 export function exportRows(scope='all') {
   if(scope==='all')return INKS;
   const ink=INKS.find(i=>i.id===scope);if(!ink)throw new Error('Couleur d’export inconnue.');return [ink];
@@ -19,7 +35,7 @@ export function safeImage(value) {
 export function normalizeCatalog(raw) {
   if (!raw || typeof raw!=='object' || !raw.cards) throw new Error('Le fichier ne contient pas de catalogue de cartes.');
   if (raw.schemaVersion===1 && Array.isArray(raw.cards)) return validateCatalog(raw);
-  const sourceCards=Array.isArray(raw.cards) ? raw.cards : Object.values(raw.cards).flat();
+  const sourceCards=Array.isArray(raw.cards) ? raw.cards : Object.entries(raw.cards).flatMap(([type,list])=>list.map(c=>({...c,category:type})));
   const cards=[], ids=new Set(); let skipped=0;
   for (const c of sourceCards) {
     const identifier=String(c.card_identifier??'').replace(/[•∙·—]/g,' ').replace(/\s+/g,' ').trim();
@@ -35,10 +51,11 @@ export function normalizeCatalog(raw) {
     ids.add(id);
     cards.push({id,set:String(+match[3]),number:+match[1],name:String(c.name).replace(/\u00ad/g,''),
       subtitle:String(c.subtitle??'').replace(/\u00ad/g,''),inks,image,thumbnail:safeImage(c.thumbnail_url)||image,
-      cost:Number.isFinite(+c.ink_cost)?+c.ink_cost:null,rarity:String(c.rarity??'')});
+      cost:c.ink_cost!=null&&Number.isFinite(+c.ink_cost)?+c.ink_cost:null,
+      rarity:canonicalRarity(c.rarity),type:canonicalType(c.category||c.type||c.card_type)});
   }
   if(!cards.length) throw new Error('Aucune carte française standard reconnue. Vérifiez le format card_identifier du catalogue.');
-  const sets=[...new Set(cards.map(c=>c.set))].sort((a,b)=>+b-+a).map(id=>({id,name:`Set ${id}`}));
+  const sets=[...new Set(cards.map(c=>c.set))].sort((a,b)=>+b-+a).map(id=>({id,name:setName(id,Array.isArray(raw.sets)?raw.sets:[])}));
   return {schemaVersion:1,source:SOURCE,updatedAt:new Date().toISOString(),sets,cards,skipped};
 }
 export function validateCatalog(raw) {
@@ -48,10 +65,18 @@ export function validateCatalog(raw) {
     const id=String(c.id),set=String(c.set);
     if(!/^\d+$/.test(id)|| !/^\d+$/.test(set) || !c.name || !Array.isArray(c.inks)|| !c.inks.length || c.inks.some(i=>!knownInks.has(i)) || !safeImage(c.image) || ids.has(id)) throw new Error('Carte invalide ou dupliquée dans le catalogue.');
     ids.add(id);
-    return {...c,id,set,image:safeImage(c.image),thumbnail:safeImage(c.thumbnail)||safeImage(c.image)};
+    return {...c,id,set,image:safeImage(c.image),thumbnail:safeImage(c.thumbnail)||safeImage(c.image),type:canonicalType(c.type),rarity:canonicalRarity(c.rarity)};
   });
   const setIds=[...new Set(cards.map(c=>c.set))].sort((a,b)=>+b-+a);
-  return {...raw,cards,sets:setIds.map(id=>({id,name:String(raw.sets.find(s=>String(s.id)===id)?.name||`Set ${id}`)}))};
+  return {...raw,cards,sets:setIds.map(id=>({id,name:setName(id,raw.sets)}))};
+}
+export function filterCards(cards,{set,ink,query='',cost='',rarity='',type=''}={}) {
+  const search=String(query).normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().trim();
+  return cards.filter(c=>(!set||c.set===String(set))&&(!ink||c.inks.includes(ink))
+    &&(!cost||(c.cost!==null&&c.cost!==undefined&&(cost==='10+'?c.cost>=10:c.cost===Number(cost))))
+    &&(!rarity||c.rarity===rarity)&&(!type||c.type===type)
+    &&`${c.name} ${c.subtitle} ${c.number}`.normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().includes(search))
+    .sort((a,b)=>a.number-b.number);
 }
 export const emptyTops=()=>Object.fromEntries(INKS.map(i=>[i.id,[]]));
 export function cleanTops(value,set,cards) {
@@ -68,6 +93,15 @@ export function moveCard(tops,ink,index,delta) {
   const target=index+delta;
   if(index<0 || target<0 || index>=tops[ink].length || target>=tops[ink].length)return false;
   [tops[ink][index],tops[ink][target]]=[tops[ink][target],tops[ink][index]]; return true;
+}
+export function moveCardTo(tops,ink,index,target) {
+  const row=tops[ink];
+  if(!row||!Number.isInteger(index)||!Number.isInteger(target)||index<0||target<0||index>=row.length||target>=row.length||index===target)return false;
+  row.splice(target,0,row.splice(index,1)[0]);return true;
+}
+export function resetTop(tops,ink) {
+  if(!knownInks.has(ink)||!tops[ink].length)return null;
+  const previous=[...tops[ink]];tops[ink]=[];return previous;
 }
 export function encodeShare(set,title,tops) {
   const json=JSON.stringify({v:1,s:String(set),t:String(title).slice(0,80),r:INKS.map(i=>tops[i.id])});

@@ -4,10 +4,11 @@ Mini-site français statique pour classer cinq cartes par encre et par extension
 
 ## Fonctionnalités
 
-- Grille des cartes avec URLs officielles, recherche par nom et sélecteur de set.
+- Grille des cartes avec URLs officielles, recherche par nom, filtres combinables par coût, rareté et type, et sélecteur d’extension avec les noms français.
 - Aperçu agrandi au clic depuis la grille et le récapitulatif, avec ajout/retrait depuis la fenêtre et fermeture par Échap.
 - Sur mobile : grille à deux colonnes, boutons tactiles et panneau de classement repliable.
-- Six tops ordonnés, modification du rang et suppression, limite de cinq cartes sans doublon par encre.
+- Six tops ordonnés, réorganisation par poignée (souris ou tactile) ou flèches et suppression, limite de cinq cartes sans doublon par encre.
+- Réinitialisation du top d’une seule encre avec annulation, conservée pendant la session jusqu’à une nouvelle modification de ce top.
 - Sauvegarde des classements par set dans le navigateur.
 - Page récapitulative et lien de partage autonome : titre, set et identifiants sont encodés dans le fragment URL. Aucun compte ni serveur nécessaire.
 - Les liens ouvrent une vue de consultation. « Créer ma version » enregistre une copie locale.
@@ -51,7 +52,7 @@ python scripts/fetch_catalog.py --input /chemin/catalog-fr.json
 node scripts/build.mjs --catalog .cache/catalog-fr.json --require-catalog
 ```
 
-Pour fournir un catalogue durable aux workflows, ajouter le JSON officiel à `data/catalog-source.json` dans le dépôt (prioritaire sur l’API). Un nouveau set présent dans ce fichier ou dans une récupération API sera automatiquement proposé dans le sélecteur, sans changement de code.
+Pour fournir un catalogue durable aux workflows, ajouter le JSON officiel à `data/catalog-source.json` dans le dépôt (prioritaire sur l’API). Un nouveau set présent dans ce fichier ou dans une récupération API sera automatiquement proposé dans le sélecteur, sans changement de code. Les noms français connus sont renseignés ; un nouveau nom fourni dans `sets` est repris, sinon l’extension apparaît sous « Extension N ».
 
 `web/data/catalog.json` est un catalogue normalisé vide au départ : aucune fausse carte n’est affichée. Sans catalogue réel, le site local indique que la collection est indisponible et le workflow de publication échoue volontairement pour éviter de publier une collection vide. Les tests utilisent uniquement des fixtures synthétiques, exclues de `dist`.
 

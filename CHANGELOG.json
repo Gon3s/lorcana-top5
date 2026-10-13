@@ -1,6 +1,16 @@
 {
   "releases": [
     {
+      "version": "1.2.0",
+      "date": "2026-10-13",
+      "changes": [
+        "Filtres combinables par coût, rareté et type, avec remise à zéro de la recherche.",
+        "Réorganisation des tops par glisser-déposer ; les flèches restent disponibles au clavier.",
+        "Réinitialisation d’un top par encre avec annulation pour retrouver les cartes et leur ordre.",
+        "Noms français des extensions dans le sélecteur, les aperçus et les exports PNG."
+      ]
+    },
+    {
       "version": "1.1.0",
       "date": "2026-10-13",
       "changes": [

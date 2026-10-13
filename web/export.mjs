@@ -1,4 +1,4 @@
-import {exportRows} from './core.mjs';
+import {exportRows,setName} from './core.mjs';
 const loadImage=url=>new Promise(resolve=>{
   if(!url){resolve(null);return;}
   const image=new Image();image.crossOrigin='anonymous';const timer=setTimeout(()=>{image.src='';resolve(null);},8000);
@@ -28,7 +28,7 @@ export async function exportPng({set,title,tops,catalog,scope='all'}){
   ctx.fillStyle='#17222e';ctx.fillRect(0,0,1800,190);
   ctx.fillStyle='#dfbb74';ctx.font='bold 22px sans-serif';ctx.fillText('LORCANA · MES TOP 5',60,55);
   ctx.fillStyle='#ffffff';ctx.font='bold 43px sans-serif';textWrap(ctx,title||'Mes favoris Lorcana',60,114,1600,1);
-  ctx.fillStyle='#c3c8cf';ctx.font='20px sans-serif';ctx.fillText(`Set ${set} · ${rows.length===1?'Top 5 '+rows[0].name:'Six encres, cinq favorites'}`,60,157);
+  ctx.fillStyle='#c3c8cf';ctx.font='20px sans-serif';textWrap(ctx,`${setName(set,catalog.sets)} · ${rows.length===1?'Top 5 '+rows[0].name:'Six encres, cinq favorites'}`,60,157,1600,1);
   let missing=0;
   for(let row=0;row<rows.length;row++){
     const ink=rows[row],y=220+row*505;

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {normalizeCatalog,validateCatalog,emptyTops,addCard,moveCard,cleanTops,encodeShare,decodeShare} from '../web/core.mjs';
+import {normalizeCatalog,validateCatalog,emptyTops,addCard,moveCard,moveCardTo,resetTop,filterCards,setName,cleanTops,encodeShare,decodeShare} from '../web/core.mjs';
 import {exportRows} from '../web/core.mjs';
 // Synthetic official-shaped cards used only in tests, never in the published site.
 const card=(id,number=1,set=14,inks=['Amber'])=>({culture_invariant_id:id,card_identifier:`${number}/204 • FR • ${set}`,name:`Carte test ${id}`,subtitle:'Épreuve',magic_ink_colors:inks,ink_cost:3,rarity:'Common',thumbnail_url:`https://example.test/${id}-thumb.jpg`,variants:[{variant_id:'Regular',detail_image_url:`https://example.test/${id}.jpg`},{variant_id:'Foiled',detail_image_url:`https://example.test/${id}-foil.jpg`}]});
@@ -58,4 +58,34 @@ test('rejects executable URLs, duplicate IDs and unknown inks in normalized impo
   assert.throws(()=>validateCatalog({...catalog,cards:[{...catalog.cards[0],image:'javascript:alert(1)'}]}));
   assert.throws(()=>validateCatalog({...catalog,cards:[...catalog.cards,...catalog.cards]}));
   assert.throws(()=>validateCatalog({...catalog,cards:[{...catalog.cards[0],inks:['Unknown']}]}));
+});
+test('preserves category types, canonical rarities and future expansion names',()=>{
+  const catalog=normalizeCatalog({sets:[{id:15,name:'Une nouvelle aventure'}],cards:{characters:[card(1)],actions:[{...card(2,2,15),rarity:'SUPER_RARE'}],items:[card(3,3)],locations:[card(4,4)]}});
+  assert.deepEqual(catalog.cards.map(c=>c.type),['Character','Action','Item','Location']);
+  assert.equal(catalog.cards[1].rarity,'SuperRare');assert.equal(catalog.sets[0].name,'Une nouvelle aventure');
+  assert.equal(setName('14'),'Hyperia City');assert.equal(setName('16'),'Extension 16');
+  assert.equal(validateCatalog({...catalog,sets:[{id:'14',name:'Set 14'},{id:'15',name:'Une nouvelle aventure'}]}).sets[1].name,'Hyperia City');
+});
+test('combined filters are accent insensitive and never alter saved picks or source order',()=>{
+  const cards=normalizeCatalog({cards:{characters:[{...card(1,4),name:'Épreuve',rarity:'RARE',ink_cost:3},{...card(2,2),name:'Épreuve',rarity:'Rare',ink_cost:10},card(3,3,15)],actions:[{...card(4,1),name:'Épreuve',rarity:'Rare',ink_cost:3}]}}).cards;
+  const criteria={set:'14',ink:'Amber',query:'epreuve',rarity:'Rare',type:'Character',cost:'3'};
+  assert.deepEqual(filterCards(cards,criteria).map(c=>c.id),['1']);
+  assert.deepEqual(filterCards(cards,{...criteria,cost:'10+'}).map(c=>c.id),['2']);
+  assert.deepEqual(filterCards(cards,{...criteria,type:'Action'}).map(c=>c.id),['4']);
+  assert.deepEqual(filterCards(cards,{...criteria,ink:'Ruby'}),[]);
+  assert.deepEqual(cards.map(c=>c.id),['1','2','3','4']);
+  assert.equal(filterCards([{...cards[0],cost:null}],{cost:'0'}).length,0);
+});
+test('dragging to a rank shifts the intervening cards, preserves other inks and rejects invalid drops',()=>{
+  const tops=emptyTops();tops.Amber=['1','2','3','4'];tops.Ruby=['8'];
+  assert.equal(moveCardTo(tops,'Amber',0,3),true);assert.deepEqual(tops.Amber,['2','3','4','1']);
+  assert.equal(moveCardTo(tops,'Amber',3,1),true);assert.deepEqual(tops.Amber,['2','1','3','4']);
+  assert.deepEqual(tops.Ruby,['8']);
+  for(const [from,to] of [[0,-1],[0,4],[1,1],[0,1.5]])assert.equal(moveCardTo(tops,'Amber',from,to),false);
+});
+test('reset returns an independent undo snapshot and affects only one ink',()=>{
+  const tops=emptyTops();tops.Amber=['1','2'];tops.Amethyst=['1'];const previous=resetTop(tops,'Amber');
+  assert.deepEqual(previous,['1','2']);assert.deepEqual(tops.Amber,[]);assert.deepEqual(tops.Amethyst,['1']);
+  tops.Amber.push('3');assert.deepEqual(previous,['1','2']);
+  assert.equal(resetTop(tops,'Steel'),null);assert.equal(resetTop(tops,'Unknown'),null);
 });

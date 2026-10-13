@@ -39,3 +39,7 @@ for(const page of ['index.html','changelog.html']){
 await writeFile('dist/data/catalog.json',JSON.stringify(catalog));
 await writeFile('dist/.nojekyll','');
 console.log(`Built dist: ${catalog.cards.length} cards, ${catalog.sets.length} sets.`);
+for(const field of ['type','rarity']) {
+  const counts={};for(const card of catalog.cards){const value=card[field]||'Unknown';counts[value]=(counts[value]||0)+1;}
+  console.log(`Catalogue ${field} values: ${JSON.stringify(counts)}`);
+}

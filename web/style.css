@@ -28,3 +28,25 @@
 
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{:root,:root[data-theme=dark]{--bg:#fff;--text:#1f2b36;--muted:#6a737b;--line:#dedfd9;--surface:#fff;--image-bg:#e7e8e2;color-scheme:light}body{background:#fff;color:var(--text)}.masthead,.intro,.workspace-head,footer,.share-actions,.share-help,.title-label,.export-options,.card-dialog,#back-editor,#toast,.notice,#share-fallback{display:none!important}main{padding:0}#editor{display:none}#summary{display:block!important}.summary-row{break-inside:avoid;border:0;padding:10px}.summary-heading{margin:0 0 15px}.summary-cards{gap:10px;grid-template-columns:repeat(5,minmax(0,1fr));overflow:visible}#summary-grid{gap:15px}.summary-card>p{font-size:9px}.summary-card img{max-height:140px}.summary-placeholder{max-height:140px}.summary-row h3{margin-bottom:10px}}
+
+/* Collection filters and direct ranking edits. */
+.filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;align-items:end;gap:12px;margin:0 0 25px}
+.filters label{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
+.filters select{width:100%;padding:12px;font-size:13px;min-height:44px}
+.filters .quiet{min-height:44px;font-size:12px}
+.ranking-title-row{display:flex;flex-direction:column;align-items:flex-start;gap:10px;margin-top:16px}
+.ranking .ranking-title-row h2{margin:0}
+.reset-top{font-size:11px;min-height:36px;padding:8px 11px}
+.undo-reset{padding:12px;border:1px solid var(--ink);border-radius:8px;margin:14px 0;display:flex;flex-direction:column;gap:10px;font-size:12px;line-height:1.6}
+.undo-reset[hidden]{display:none}
+.undo-reset .quiet{min-height:44px}
+.rank-handle{flex:none;touch-action:none;cursor:grab;background:transparent;color:var(--muted);padding:0;width:24px;height:44px;font-size:24px;border-radius:4px;user-select:none}
+.rank-handle:hover{background:var(--hover);color:var(--text)}
+.rank-slot:has(.rank-handle){gap:6px}
+.rank-slot.dragging{opacity:.5;border-color:var(--ink);cursor:grabbing}
+.rank-slot.drop-target{border:2px solid var(--ink);padding:9px;background:var(--hover)}
+.rank-handle:active{cursor:grabbing}
+.season select{width:100%}
+@media(max-width:1050px){.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.filters .quiet{width:100%}}
+@media(max-width:740px){.ranking-title-row{flex-direction:row;justify-content:space-between;align-items:center;margin-top:12px;gap:8px}.reset-top{min-height:44px}.rank-handle{width:44px}.filters{gap:10px;margin-bottom:20px}.filters select{font-size:14px}.undo-reset{margin-bottom:0}}
+@media print{.filters,.reset-top,.undo-reset,.rank-handle{display:none!important}}
