@@ -1,0 +1,20 @@
+import {readFile,writeFile} from 'node:fs/promises';
+const args=process.argv.slice(2);
+const levels=['patch','minor','major'];
+const level=levels.includes(args[0])?args.shift():'patch';
+const notes=args.map(s=>s.trim()).filter(Boolean);
+if(!notes.length)throw new Error('Usage: npm run release -- [patch|minor|major] "Changement livré" ["Autre changement"]');
+const pkg=JSON.parse(await readFile('package.json','utf8'));
+const changelog=JSON.parse(await readFile('CHANGELOG.json','utf8'));
+if(!/^\d+\.\d+\.\d+$/.test(pkg.version)||changelog.releases?.[0]?.version!==pkg.version)throw new Error('La version du package doit correspondre à la dernière entrée du changelog.');
+const parts=pkg.version.split('.').map(Number);
+const index=levels.indexOf(level);
+const position=2-index;parts[position]++;for(let i=position+1;i<3;i++)parts[i]=0;
+const version=parts.join('.');
+const date=new Date().toLocaleDateString('en-CA',{timeZone:'Europe/Paris'});
+pkg.version=version;
+changelog.releases.unshift({version,date,changes:notes});
+// Both source files are committed together by the release owner.
+await writeFile('package.json',JSON.stringify(pkg,null,2)+'\n');
+await writeFile('CHANGELOG.json',JSON.stringify(changelog,null,2)+'\n');
+console.log(`Release ${version} prepared with ${notes.length} changelog entries.`);

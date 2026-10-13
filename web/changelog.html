@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101720">
+  <meta name="description" content="Les nouveautés et les versions de Lorcana Top 5.">
+  <title>Nouveautés · Lorcana Top 5</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./theme.mjs"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Aller aux nouveautés</a>
+  <header class="masthead">
+    <a class="brand" href="./" aria-label="Lorcana Top 5, accueil"><span class="brand-icon" aria-hidden="true">✦</span><span>LORCANA <small>LE CARNET DES ENCRES</small></span></a>
+    <span class="header-label">VERSION __APP_VERSION__</span>
+    <div class="header-actions"><button id="theme-toggle" class="quiet theme-toggle" aria-label="Activer le mode clair"><span id="theme-symbol" aria-hidden="true">☀</span><span id="theme-label" class="theme-label">Mode clair</span></button><a class="quiet" href="./">Retour aux tops →</a></div>
+  </header>
+  <main id="main" class="changelog-main">
+    <section class="intro"><div><p class="eyebrow">LE SITE ÉVOLUE</p><h1>Les nouveautés<span>.</span></h1><p class="intro-copy">Les améliorations de votre carnet, version après version.</p></div><span class="version-badge">v__APP_VERSION__</span></section>
+    <div class="release-list">__CHANGELOG_ENTRIES__</div>
+    <footer><div><span class="footer-brand">✦ LORCANA TOP 5</span><p>Un carnet de favoris, une encre à la fois.</p><small>Projet de fans non officiel. Disney Lorcana © Disney / Ravensburger.</small></div><div class="footer-links"><a href="./">Créer mes tops ↗</a><a href="https://github.com/Gon3s/lorcana-top5" target="_blank" rel="noopener">Code source ↗</a><span>v__APP_VERSION__</span></div></footer>
+  </main>
+</body>
+</html>

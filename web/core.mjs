@@ -7,6 +7,10 @@ export const INKS = [
   {id:'Steel', name:'Acier', color:'#b5c3d3'}
 ];
 export const SOURCE = 'https://api.lorcana.ravensburger.com/v3/catalog/fr';
+export function exportRows(scope='all') {
+  if(scope==='all')return INKS;
+  const ink=INKS.find(i=>i.id===scope);if(!ink)throw new Error('Couleur d’export inconnue.');return [ink];
+}
 const knownInks = new Set(INKS.map(x=>x.id));
 const canonicalInk = new Map(INKS.map(x=>[x.id.toUpperCase(),x.id]));
 export function safeImage(value) {

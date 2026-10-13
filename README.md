@@ -5,12 +5,30 @@ Mini-site français statique pour classer cinq cartes par encre et par extension
 ## Fonctionnalités
 
 - Grille des cartes avec URLs officielles, recherche par nom et sélecteur de set.
+- Aperçu agrandi au clic depuis la grille et le récapitulatif, avec ajout/retrait depuis la fenêtre et fermeture par Échap.
+- Sur mobile : grille à deux colonnes, boutons tactiles et panneau de classement repliable.
 - Six tops ordonnés, modification du rang et suppression, limite de cinq cartes sans doublon par encre.
 - Sauvegarde des classements par set dans le navigateur.
 - Page récapitulative et lien de partage autonome : titre, set et identifiants sont encodés dans le fragment URL. Aucun compte ni serveur nécessaire.
 - Les liens ouvrent une vue de consultation. « Créer ma version » enregistre une copie locale.
 - Export PNG des six tops et impression / PDF. Le workflow copie les miniatures officielles sur le site pour éviter les restrictions CORS pendant l’export. La grille conserve les URLs officielles. Si une image n’a pas pu être copiée et que le serveur distant refuse CORS, le PNG conserve le nom et le rang et signale le visuel manquant.
 - Mode sombre par défaut, bouton de passage au mode clair et préférence mémorisée sur cet appareil. Le catalogue est fourni automatiquement ; aucun formulaire d’upload n’est exposé.
+- Export au choix des six tops ou d’un seul top par encre.
+- Version affichée en bas de page et historique sur `changelog.html`.
+
+## Versions et changelog
+
+`package.json` est la source du numéro de version. `CHANGELOG.json` conserve les versions, dates et notes en français ; le build génère la page statique `changelog.html` et renseigne la version dans les pages. Il refuse une version qui ne correspond pas à la dernière entrée du changelog.
+
+Pour chaque prochaine évolution du site, préparer une seule nouvelle version avant de publier :
+
+```bash
+npm run release -- patch "Correction livrée"
+# Pour de nouvelles fonctionnalités :
+npm run release -- minor "Fonctionnalité livrée" "Autre amélioration"
+```
+
+La commande incrémente le numéro et ajoute l’entrée datée au changelog. Les actualisations quotidiennes du catalogue ne changent pas la version de l’application. Les clés de sauvegarde et les liens existants restent compatibles.
 
 ## Catalogue officiel
 

@@ -1,0 +1,23 @@
+{
+  "releases": [
+    {
+      "version": "1.1.0",
+      "date": "2026-10-13",
+      "changes": [
+        "Interface mobile améliorée : cartes plus lisibles, boutons tactiles et classement repliable.",
+        "Aperçu agrandi des cartes depuis la grille et le récapitulatif, avec ajout au top depuis l’aperçu.",
+        "Export PNG au choix : un top par encre ou les six classements.",
+        "Numéro de version visible et page Nouveautés avec historique des changements."
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "date": "2026-10-13",
+      "changes": [
+        "Création des tops de cinq cartes par encre et par extension, avec prise en charge des bicolores.",
+        "Sauvegarde locale, partage par lien, récapitulatif et export PNG avec les visuels officiels.",
+        "Mode sombre par défaut, préférence clair/sombre mémorisée et actualisation quotidienne du catalogue."
+      ]
+    }
+  ]
+}

@@ -28,18 +28,22 @@
         <div class="collection-head"><div><h2 id="collection-title">Votre collection</h2><p id="card-count"></p></div><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Rechercher une carte…" aria-label="Rechercher une carte"></label></div>
         <div id="grid" class="card-grid" aria-live="polite"></div>
       </div>
-      <aside class="ranking"><div class="ranking-heading"><span class="eyebrow">VOTRE SÉLECTION</span><span id="rank-count"></span></div><h2 id="ranking-title">Top 5 Ambre</h2><p class="ranking-help">Ajoutez une carte, puis ajustez son rang avec les flèches.</p><ol id="ranking-list"></ol><div class="ranking-bottom"><span id="save-status">Sauvegarde automatique sur cet appareil</span><button id="view-summary" class="primary">Voir mes six tops <span aria-hidden="true">→</span></button></div></aside>
+      <aside class="ranking"><div class="ranking-heading"><span class="eyebrow">VOTRE SÉLECTION</span><span id="rank-count"></span></div><h2 id="ranking-title">Top 5 Ambre</h2><p class="ranking-help">Ajoutez une carte, puis ajustez son rang avec les flèches.</p><button id="mobile-ranking-toggle" class="quiet mobile-ranking-toggle" aria-expanded="false" aria-controls="ranking-list">Voir mon top (0/5) ↓</button><ol id="ranking-list"></ol><div class="ranking-bottom"><span id="save-status">Sauvegarde automatique sur cet appareil</span><button id="view-summary" class="primary">Voir mes six tops <span aria-hidden="true">→</span></button></div></aside>
     </section>
     <section id="summary" hidden>
       <div class="summary-heading"><div><p class="eyebrow">LE RÉCAPITULATIF</p><h2>Mes six tops</h2></div><button id="back-editor" class="quiet">← Modifier mes tops</button></div>
       <label class="title-label" for="ranking-name">Titre de votre sélection<input id="ranking-name" maxlength="80" placeholder="Mes favoris Lorcana"></label>
-      <div class="share-actions"><button id="share-link" class="primary">Copier le lien de partage ↗</button><button id="export-png" class="quiet">Exporter en image PNG ↓</button><button id="print" class="quiet">Imprimer / PDF</button></div>
+      <label class="export-options" for="export-scope">Contenu de l’image<select id="export-scope"><option value="all">Mes six tops</option><option value="Amber">Top Ambre</option><option value="Amethyst">Top Améthyste</option><option value="Emerald">Top Émeraude</option><option value="Ruby">Top Rubis</option><option value="Sapphire">Top Saphir</option><option value="Steel">Top Acier</option></select></label><div class="share-actions"><button id="share-link" class="primary">Copier le lien de partage ↗</button><button id="export-png" class="quiet">Exporter en image PNG ↓</button><button id="print" class="quiet">Imprimer / PDF</button></div>
       <div id="share-fallback" hidden><label for="share-url">Lien de partage</label><input id="share-url" readonly><p>Copiez ce lien pour partager vos classements.</p></div>
       <p class="share-help">Le lien contient votre sélection actuelle. Après modification, copiez un nouveau lien.</p>
       <div id="summary-grid"></div>
     </section>
-    <footer><div><span class="footer-brand">✦ LORCANA TOP 5</span><p>Un carnet de favoris, une encre à la fois.</p><small>Projet de fans non officiel. Disney Lorcana © Disney / Ravensburger.</small></div><div class="footer-links"><a href="https://api.lorcana.ravensburger.com/v3/catalog/fr" target="_blank" rel="noopener">Catalogue officiel FR ↗</a><a href="https://github.com/Gon3s/lorcana-top5" target="_blank" rel="noopener">Code source ↗</a></div></footer>
+    <footer><div><span class="footer-brand">✦ LORCANA TOP 5</span><p>Un carnet de favoris, une encre à la fois.</p><small>Projet de fans non officiel. Disney Lorcana © Disney / Ravensburger.</small></div><div class="footer-links"><a href="https://api.lorcana.ravensburger.com/v3/catalog/fr" target="_blank" rel="noopener">Catalogue officiel FR ↗</a><a href="https://github.com/Gon3s/lorcana-top5" target="_blank" rel="noopener">Code source ↗</a><a href="./changelog.html" class="version-link">v__APP_VERSION__ · Nouveautés</a></div></footer>
   </main>
+  <dialog id="card-dialog" class="card-dialog" aria-labelledby="card-dialog-title">
+    <button id="card-dialog-close" class="dialog-close" aria-label="Fermer l’aperçu">×</button>
+    <div class="dialog-body"><img id="card-dialog-image" alt=""><div class="dialog-info"><p class="eyebrow">APERÇU DE LA CARTE</p><h2 id="card-dialog-title"></h2><p id="card-dialog-subtitle"></p><p id="card-dialog-meta"></p><p id="card-dialog-error" hidden>Le visuel est momentanément indisponible.</p></div><div class="dialog-actions"><button id="card-dialog-pick" class="primary">Ajouter à mon top</button><p>Cliquez en dehors de l’aperçu ou appuyez sur Échap pour fermer.</p></div></div>
+  </dialog>
   <div id="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>

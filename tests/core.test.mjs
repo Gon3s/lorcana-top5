@@ -1,9 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {normalizeCatalog,validateCatalog,emptyTops,addCard,moveCard,cleanTops,encodeShare,decodeShare} from '../web/core.mjs';
+import {exportRows} from '../web/core.mjs';
 // Synthetic official-shaped cards used only in tests, never in the published site.
 const card=(id,number=1,set=14,inks=['Amber'])=>({culture_invariant_id:id,card_identifier:`${number}/204 • FR • ${set}`,name:`Carte test ${id}`,subtitle:'Épreuve',magic_ink_colors:inks,ink_cost:3,rarity:'Common',thumbnail_url:`https://example.test/${id}-thumb.jpg`,variants:[{variant_id:'Regular',detail_image_url:`https://example.test/${id}.jpg`},{variant_id:'Foiled',detail_image_url:`https://example.test/${id}-foil.jpg`}]});
 const raw=(...cards)=>({cards:{characters:cards,actions:[]}});
+test('a single-ink export selects only the requested row and rejects unknown scopes',()=>{
+  assert.equal(exportRows().length,6);assert.deepEqual(exportRows('Ruby').map(i=>i.id),['Ruby']);assert.throws(()=>exportRows('Unknown'),/inconnue/);
+});
 test('imports French identifier, standard art and multiple sets',()=>{
   const catalog=normalizeCatalog(raw(card(10,2),card(11,1,15)));
   assert.equal(catalog.cards[0].set,'14');assert.equal(catalog.cards[0].number,2);
